@@ -75,7 +75,6 @@ public class DocsQuickstart {
         doc = service.documents().create(doc)
                 .execute();
         System.out.println("Created document with title: " + doc.getTitle());
-        System.out.println("Hello world");
     }
 
 }
