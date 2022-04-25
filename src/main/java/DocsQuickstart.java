@@ -10,13 +10,14 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.docs.v1.Docs;
 import com.google.api.services.docs.v1.DocsScopes;
-import com.google.api.services.docs.v1.model.Document;
+import com.google.api.services.docs.v1.model.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class DocsQuickstart {
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     /** Directory to store authorization tokens for this application. */
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
-    private static final String DOCUMENT_ID = "195j9eDD3ccgjQRttHhJPymLJUCOUjs-jmwTrekvdjFE";
+    private static String DOCUMENT_ID = "195j9eDD3ccgjQRttHhJPymLJUCOUjs-jmwTrekvdjFE";
 
     /**
      * Global instance of the scopes required by this quickstart.
@@ -75,6 +76,34 @@ public class DocsQuickstart {
         doc = service.documents().create(doc)
                 .execute();
         System.out.println("Created document with title: " + doc.getTitle());
+
+        DOCUMENT_ID = doc.getDocumentId();
+
+
+        //lets see
+        List<Request> requests = new ArrayList<>();
+
+        String text1 = "Hello";
+        String text2 = "Hey";
+        String text3 = "Howdy";
+
+        requests.add(new Request().setInsertText(new InsertTextRequest()
+                .setText(text1)
+                .setLocation(new Location().setIndex(1))));
+
+        requests.add(new Request().setInsertText(new InsertTextRequest()
+                .setText(text2)
+                .setLocation(new Location().setIndex(text1.length() + 1))));
+
+        requests.add(new Request().setInsertText(new InsertTextRequest()
+                .setText(text3)
+                .setLocation(new Location().setIndex(text1.length() + text2.length() +1))));
+
+        BatchUpdateDocumentRequest body = new BatchUpdateDocumentRequest().setRequests(requests);
+        BatchUpdateDocumentResponse response = service.documents()
+                .batchUpdate(DOCUMENT_ID, body).execute();
+
+
     }
 
 }
