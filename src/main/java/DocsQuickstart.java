@@ -63,16 +63,14 @@ public class DocsQuickstart {
         //returns an authorized Credential object.
         return credential;
     }
-
-    public static void main(String... args) throws IOException, GeneralSecurityException {
-        // Build a new authorized API client service.
+    public static void setName(String name,String ti, String ques, String ans) throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         Docs service = new Docs.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
 
         Document doc = new Document()
-                .setTitle("My Document");
+                .setTitle(name);
         doc = service.documents().create(doc)
                 .execute();
         System.out.println("Created document with title: " + doc.getTitle());
@@ -80,28 +78,60 @@ public class DocsQuickstart {
         DOCUMENT_ID = doc.getDocumentId();
 
 
-        //lets see
+
+
         List<Request> requests = new ArrayList<>();
 
-        String text1 = "Hello";
-        String text2 = "Hey";
-        String text3 = "Howdy";
+        String question = ques;
+        String answer = ans;
+        String title = ti;
 
         requests.add(new Request().setInsertText(new InsertTextRequest()
-                .setText(text1)
+                .setText(title)
                 .setLocation(new Location().setIndex(1))));
 
-        requests.add(new Request().setInsertText(new InsertTextRequest()
-                .setText(text2)
-                .setLocation(new Location().setIndex(text1.length() + 1))));
+        requests.add(new Request().setInsertInlineImage(new InsertInlineImageRequest()
+                .setUri("https://fonts.gstatic.com/s/i/productlogos/docs_2020q4/v6/web-64dp/logo_docs_2020q4_color_1x_web_64dp.png")
+                .setLocation(new Location().setIndex(title.length()+1))
+                .setObjectSize(new Size()
+                        .setHeight(new Dimension()
+                                .setMagnitude(50.0)
+                                .setUnit("PT"))
+                        .setWidth(new Dimension()
+                                .setMagnitude(50.0)
+                                .setUnit("PT")))));
 
         requests.add(new Request().setInsertText(new InsertTextRequest()
-                .setText(text3)
-                .setLocation(new Location().setIndex(text1.length() + text2.length() +1))));
+                .setText(question)
+                .setLocation(new Location().setIndex(title.length()+1))));
+
+        requests.add(new Request().setUpdateTextStyle(new UpdateTextStyleRequest()
+                .setTextStyle(new TextStyle()
+                        .setBold(true)
+                        .setItalic(false))
+                .setRange(new Range()
+                        .setStartIndex(title.length())
+                        .setEndIndex(title.length() + question.length()))
+                .setFields("bold")));
+
+        requests.add(new Request().setInsertText(new InsertTextRequest()
+                .setText(answer)
+                .setLocation(new Location().setIndex(question.length() + title.length()+ 1))));
+
 
         BatchUpdateDocumentRequest body = new BatchUpdateDocumentRequest().setRequests(requests);
         BatchUpdateDocumentResponse response = service.documents()
                 .batchUpdate(DOCUMENT_ID, body).execute();
+
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        setName("New Name1","Title", "How are you?", "Im fine");
+
+
+        //lets see
+
 
 
     }
